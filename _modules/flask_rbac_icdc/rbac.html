@@ -82,7 +82,7 @@
 
 <span class="sd">  rbac = RBAC(rbac_config_path, Account)</span>
 
-<span class="sd">If it is necessary to implement more advanced conditional role assignment, you can override </span>
+<span class="sd">If it is necessary to implement more advanced conditional role assignment, you can override</span>
 <span class="sd">the `RbacAccount.get_role` method to achieve this.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -94,6 +94,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flask</span><span class="w"> </span><span class="kn">import</span> <span class="n">request</span><span class="p">,</span> <span class="n">abort</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jsonschema</span>
 
 
 <div class="viewcode-block" id="RbacAccount">
@@ -182,7 +183,7 @@
 <span class="sd">        Note:</span>
 <span class="sd">            This is an abstract method that can be implemented by subclasses.</span>
 
-<span class="sd">        This method can be used for more complex checks on a requested role or for conditional </span>
+<span class="sd">        This method can be used for more complex checks on a requested role or for conditional</span>
 <span class="sd">        granting of another role for the subject.</span>
 
 <span class="sd">        Args:</span>
@@ -314,6 +315,8 @@
 <span class="sd">        policy (dict): The RBAC policy configuration loaded from the YAML file.</span>
 <span class="sd">        roles (Enum): Enum of roles defined in the policy configuration.</span>
 <span class="sd">        account_model (RbacAccount): The account model class to use for account operations.</span>
+<span class="sd">        validate (bool): Flag to enable validation of the RBAC configuration against a schema.</span>
+<span class="sd">        schema_path (str): Path to the JSON schema file for validating the RBAC configuration.</span>
 <span class="sd">        use_operator_group (bool): Flag to enable operator group functionality, is True by default.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -321,6 +324,8 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">account_model</span><span class="p">:</span> <span class="n">RbacAccount</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">schema_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">use_operator_group</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -329,6 +334,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            config_path (str): Path to the YAML configuration file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span> <span class="o">=</span> <span class="n">validate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schema_path</span> <span class="o">=</span> <span class="n">schema_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_roles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_config</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_account_model</span> <span class="o">=</span> <span class="n">account_model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_use_operator_group</span> <span class="o">=</span> <span class="n">use_operator_group</span>
@@ -353,17 +360,44 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            FileNotFoundError: If the specified configuration file does not exist.</span>
 <span class="sd">            yaml.YAMLError: If the configuration file contains invalid YAML syntax.</span>
+<span class="sd">            jsonschema.ValidationError: If the configuration does not conform to the schema.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config_path</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RBAC config file not found: </span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handle</span><span class="p">:</span>
             <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]]</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
                 <span class="n">file_handle</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_schema_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;schemes&quot;</span><span class="p">,</span> <span class="s2">&quot;rbac.json&quot;</span>
+                <span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">schema_file</span><span class="p">:</span>
+                <span class="n">schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">schema_file</span><span class="p">)</span>
+                <span class="n">jsonschema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;roles&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="n">roles</span> <span class="o">=</span> <span class="p">{</span><span class="n">role</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span> <span class="n">role</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">Enum</span><span class="p">(</span><span class="s2">&quot;Roles&quot;</span><span class="p">,</span> <span class="n">roles</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RBAC.validate_config">
+<a class="viewcode-back" href="../../flask_rbac_icdc.html#flask_rbac_icdc.rbac.RBAC.validate_config">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_config</span><span class="p">(</span><span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">schema_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate RBAC configuration file against the JSON schema.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config_path (str): Path to the YAML configuration file.</span>
+<span class="sd">            schema_path (str): Path to the JSON schema file for validation.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: If the specified configuration file does not exist.</span>
+<span class="sd">            yaml.YAMLError: If the configuration file contains invalid YAML syntax.</span>
+<span class="sd">            jsonschema.ValidationError: If the configuration does not conform to the schema.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">RBAC</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">RbacAccount</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">schema_path</span><span class="o">=</span><span class="n">schema_path</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_permission</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>

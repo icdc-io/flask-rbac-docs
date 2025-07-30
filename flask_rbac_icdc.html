@@ -118,7 +118,7 @@ operation without the access rights</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="flask_rbac_icdc.rbac.RBAC">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flask_rbac_icdc.rbac.</span></span><span class="sig-name descname"><span class="pre">RBAC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_operator_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flask_rbac_icdc/rbac.html#RBAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_rbac_icdc.rbac.RBAC" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flask_rbac_icdc.rbac.</span></span><span class="sig-name descname"><span class="pre">RBAC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_operator_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flask_rbac_icdc/rbac.html#RBAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_rbac_icdc.rbac.RBAC" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>RBAC class to handle role-based access control.</p>
 <dl class="py attribute">
@@ -150,6 +150,28 @@ operation without the access rights</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#flask_rbac_icdc.rbac.RbacAccount" title="flask_rbac_icdc.rbac.RbacAccount">RbacAccount</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flask_rbac_icdc.rbac.RBAC.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><a class="headerlink" href="#flask_rbac_icdc.rbac.RBAC.validate" title="Link to this definition"></a></dt>
+<dd><p>Flag to enable validation of the RBAC configuration against a schema.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flask_rbac_icdc.rbac.RBAC.schema_path">
+<span class="sig-name descname"><span class="pre">schema_path</span></span><a class="headerlink" href="#flask_rbac_icdc.rbac.RBAC.schema_path" title="Link to this definition"></a></dt>
+<dd><p>Path to the JSON schema file for validating the RBAC configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -224,6 +246,28 @@ applied when accessing those resources.</p>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>FileNotFoundError</strong> -- If the specified configuration file does not exist.</p></li>
 <li><p><strong>yaml.YAMLError</strong> -- If the configuration file contains invalid YAML syntax.</p></li>
+<li><p><strong>jsonschema.ValidationError</strong> -- If the configuration does not conform to the schema.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flask_rbac_icdc.rbac.RBAC.validate_config">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flask_rbac_icdc/rbac.html#RBAC.validate_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_rbac_icdc.rbac.RBAC.validate_config" title="Link to this definition"></a></dt>
+<dd><p>Validate RBAC configuration file against the JSON schema.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_path</strong> (<em>str</em>) -- Path to the YAML configuration file.</p></li>
+<li><p><strong>schema_path</strong> (<em>str</em>) -- Path to the JSON schema file for validation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FileNotFoundError</strong> -- If the specified configuration file does not exist.</p></li>
+<li><p><strong>yaml.YAMLError</strong> -- If the configuration file contains invalid YAML syntax.</p></li>
+<li><p><strong>jsonschema.ValidationError</strong> -- If the configuration does not conform to the schema.</p></li>
 </ul>
 </dd>
 </dl>
@@ -455,7 +499,7 @@ operation without the access rights</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="flask_rbac_icdc.RBAC">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flask_rbac_icdc.</span></span><span class="sig-name descname"><span class="pre">RBAC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_operator_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flask_rbac_icdc/rbac.html#RBAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_rbac_icdc.RBAC" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flask_rbac_icdc.</span></span><span class="sig-name descname"><span class="pre">RBAC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_operator_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flask_rbac_icdc/rbac.html#RBAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_rbac_icdc.RBAC" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>RBAC class to handle role-based access control.</p>
 <dl class="py attribute">
@@ -487,6 +531,28 @@ operation without the access rights</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#flask_rbac_icdc.RbacAccount" title="flask_rbac_icdc.RbacAccount">RbacAccount</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flask_rbac_icdc.RBAC.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><a class="headerlink" href="#flask_rbac_icdc.RBAC.validate" title="Link to this definition"></a></dt>
+<dd><p>Flag to enable validation of the RBAC configuration against a schema.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flask_rbac_icdc.RBAC.schema_path">
+<span class="sig-name descname"><span class="pre">schema_path</span></span><a class="headerlink" href="#flask_rbac_icdc.RBAC.schema_path" title="Link to this definition"></a></dt>
+<dd><p>Path to the JSON schema file for validating the RBAC configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -561,6 +627,28 @@ applied when accessing those resources.</p>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>FileNotFoundError</strong> -- If the specified configuration file does not exist.</p></li>
 <li><p><strong>yaml.YAMLError</strong> -- If the configuration file contains invalid YAML syntax.</p></li>
+<li><p><strong>jsonschema.ValidationError</strong> -- If the configuration does not conform to the schema.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flask_rbac_icdc.RBAC.validate_config">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flask_rbac_icdc/rbac.html#RBAC.validate_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_rbac_icdc.RBAC.validate_config" title="Link to this definition"></a></dt>
+<dd><p>Validate RBAC configuration file against the JSON schema.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_path</strong> (<em>str</em>) -- Path to the YAML configuration file.</p></li>
+<li><p><strong>schema_path</strong> (<em>str</em>) -- Path to the JSON schema file for validation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FileNotFoundError</strong> -- If the specified configuration file does not exist.</p></li>
+<li><p><strong>yaml.YAMLError</strong> -- If the configuration file contains invalid YAML syntax.</p></li>
+<li><p><strong>jsonschema.ValidationError</strong> -- If the configuration does not conform to the schema.</p></li>
 </ul>
 </dd>
 </dl>
